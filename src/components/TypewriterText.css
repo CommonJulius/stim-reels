@@ -1,0 +1,35 @@
+/*
+ * TypewriterText — Stim body text typewriter reveal
+ *
+ * From Lottie analysis:
+ * - Characters snap in sequentially (opacity 0 → 1, hard edge)
+ * - Container drifts up ~10px with 2deg → 0deg rotation
+ * - ~16ms per character, duration scales with length
+ */
+
+.typewriter-text {
+  font-family: 'GeneralSans-Medium', 'General Sans', sans-serif;
+  font-weight: 500;
+  font-size: 4.27cqi; /* 16px at 375px reel width */
+  line-height: 1.6;
+  margin: 0;
+  margin-top: 0.6em;
+  transform: translateY(10px) rotate(2deg);
+  transform-origin: left top;
+  transition:
+    transform 400ms cubic-bezier(0.1, 0.7, 0.6, 1);
+}
+
+.typewriter-text--visible {
+  transform: translateY(0) rotate(0deg);
+}
+
+.typewriter-text__word {
+  opacity: 0;
+  transition: opacity 0ms step-end;
+}
+
+.typewriter-text__word--visible {
+  opacity: 1;
+  transition: opacity 0ms step-start;
+}

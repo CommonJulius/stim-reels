@@ -1,0 +1,115 @@
+.app {
+  width: 100%;
+  height: 100%;
+  position: relative;
+}
+
+/* Demo overlay styling */
+.demo-overlay {
+  text-align: left;
+}
+
+.demo-overlay h2 {
+  font-size: 24px;
+  font-weight: 700;
+  margin-bottom: 8px;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+.demo-overlay p {
+  font-size: 14px;
+  opacity: 0.9;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+/* Reel position indicators */
+.reel-indicators {
+  position: fixed;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  z-index: 100;
+}
+
+.indicator {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.4);
+  transition: all 0.3s ease;
+}
+
+.indicator.active {
+  background: white;
+  transform: scale(1.3);
+}
+
+/* Stim Infographic Specific Styles */
+.stim-infographic-app {
+  background: #0F0F1A;
+}
+
+.stim-indicators .indicator {
+  background: rgba(155, 123, 199, 0.4);
+}
+
+.stim-indicators .indicator.active {
+  background: #9B7BC7;
+}
+
+/* Language toggle button */
+.language-toggle {
+  position: fixed;
+  top: 16px;
+  right: 16px;
+  z-index: 1000;
+  background: rgba(107, 76, 154, 0.8);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(155, 123, 199, 0.3);
+  color: white;
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.language-toggle:hover {
+  background: rgba(107, 76, 154, 1);
+  transform: scale(1.05);
+}
+
+/* Scroll hint */
+.scroll-hint {
+  position: fixed;
+  bottom: 32px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 12px;
+  z-index: 100;
+  animation: bounce 2s ease-in-out infinite;
+}
+
+.scroll-icon {
+  width: 24px;
+  height: 24px;
+}
+
+@keyframes bounce {
+  0%, 100% {
+    transform: translateX(-50%) translateY(0);
+  }
+  50% {
+    transform: translateX(-50%) translateY(8px);
+  }
+}
+

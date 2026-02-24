@@ -1,0 +1,55 @@
+/* StatsReel — scrolling stats container */
+.stats-reel {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+
+/* Vertically sliding track */
+.stats-reel__track {
+  width: 100%;
+  transition: transform 800ms cubic-bezier(0.1, 0.7, 0.6, 1);
+  will-change: transform;
+}
+
+/* Each page fills the visible area */
+.stats-reel__page {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  padding: 0 8.53cqi; /* 32px at 375px reel width */
+}
+
+/* Intro text — bold, larger */
+.stats-reel__intro {
+  width: 100%;
+}
+
+.stats-reel__intro .animated-text__line {
+  font-family: 'GeneralSans-Bold', 'General Sans', sans-serif;
+  font-weight: 700;
+  font-size: 12cqi; /* ~45px at 375px — larger intro heading */
+  line-height: 1.15;
+}
+
+/* Stat block */
+.stats-reel__stat {
+  width: 100%;
+}
+
+/* Stat value — large bold italic number */
+.stats-reel__value .animated-text__line {
+  font-family: 'GeneralSans-Bold', 'General Sans', sans-serif;
+  font-weight: 700;
+  font-style: italic;
+  font-size: 18cqi; /* ~67px at 375px — big stat number */
+  line-height: 1.1;
+}
+
+/* Stat label — medium body text */
+.stats-reel__label .typewriter-text {
+  font-size: 5.33cqi; /* ~20px at 375px */
+  line-height: 1.5;
+  margin-top: 0.8em;
+}

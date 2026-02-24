@@ -1,0 +1,432 @@
+/* ============================================
+   GRAPHIC EXPLORER v2 — Pinterest-inspired
+   ============================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=General+Sans:wght@400;500;600;700&display=swap');
+
+.graphic-explorer {
+  min-height: 100vh;
+  background: #08080a;
+  color: #fff;
+  font-family: 'General Sans', 'Inter', -apple-system, sans-serif;
+  padding-bottom: 80px;
+}
+
+/* ---- Controls ---- */
+.explorer-controls {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: rgba(8, 8, 10, 0.88);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  padding: 14px 20px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.controls-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.explorer-title {
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  margin: 0;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.color-selector {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.color-chip {
+  display: flex;
+  gap: 1px;
+  padding: 3px;
+  border: 2px solid transparent;
+  border-radius: 6px;
+  background: transparent;
+  cursor: pointer;
+  transition: border-color 0.15s, transform 0.1s;
+}
+
+.color-chip:hover { transform: scale(1.15); }
+.color-chip.active { border-color: rgba(255, 255, 255, 0.4); }
+
+.color-chip span {
+  display: block;
+  width: 12px;
+  height: 18px;
+  border-radius: 2px;
+}
+
+.color-name {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.3);
+  margin-left: 4px;
+}
+
+.back-btn {
+  padding: 5px 12px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 6px;
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 12px;
+  cursor: pointer;
+  font-family: inherit;
+  transition: background 0.15s;
+}
+
+.back-btn:hover { background: rgba(255, 255, 255, 0.12); }
+
+/* ---- Grid ---- */
+.directions-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 12px;
+  padding: 20px;
+}
+
+.direction-card {
+  cursor: pointer;
+  border-radius: 10px;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  transition: transform 0.2s ease, border-color 0.2s;
+}
+
+.direction-card:hover {
+  transform: translateY(-3px);
+  border-color: rgba(255, 255, 255, 0.12);
+}
+
+.direction-preview {
+  aspect-ratio: 9 / 16;
+  overflow: hidden;
+}
+
+.direction-meta {
+  padding: 8px 10px;
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+}
+
+.direction-id {
+  font-size: 10px;
+  color: rgba(255, 255, 255, 0.2);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.direction-name {
+  font-size: 12px;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+/* ---- Detail View ---- */
+.detail-header {
+  padding: 20px 20px 12px;
+}
+
+.detail-header h3 {
+  font-size: 18px;
+  font-weight: 600;
+  margin: 0;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.detail-variants {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 12px;
+  padding: 0 20px 40px;
+}
+
+.variant-frame {
+  border-radius: 10px;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  cursor: pointer;
+  transition: border-color 0.2s;
+}
+
+.variant-frame:hover {
+  border-color: rgba(255, 255, 255, 0.12);
+}
+
+.variant-frame .graphic-frame {
+  aspect-ratio: 9 / 16;
+}
+
+.variant-label {
+  display: block;
+  padding: 6px 10px;
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.3);
+  text-align: center;
+}
+
+/* ============================================
+   GRAPHIC FRAME — shared
+   ============================================ */
+
+.graphic-frame {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+.graphic-frame svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+/* ---- Text overlay ---- */
+.text-overlay {
+  position: absolute;
+  left: 7%;
+  right: 7%;
+  z-index: 10;
+  bottom: 16%;
+}
+
+.text-overlay.bottom {
+  bottom: 10%;
+}
+
+.text-overlay.top-area {
+  bottom: auto;
+  top: 10%;
+}
+
+.text-overlay h1 {
+  font-family: 'General Sans', sans-serif;
+  font-size: clamp(20px, 6.5vw, 32px);
+  font-weight: 700;
+  line-height: 1.05;
+  margin: 0 0 8px;
+  letter-spacing: -0.02em;
+}
+
+.text-overlay p {
+  font-family: 'General Sans', sans-serif;
+  font-size: clamp(10px, 2.8vw, 13px);
+  font-weight: 400;
+  line-height: 1.4;
+  margin: 0;
+  opacity: 0.55;
+}
+
+/* ============================================
+   DIRECTION ANIMATIONS
+   ============================================ */
+
+/* 1 — Warped Line Field */
+.dir-warp .warp-line {
+  animation: warpPulse 6s ease-in-out infinite;
+}
+
+@keyframes warpPulse {
+  0%, 100% { stroke-opacity: var(--base-opacity, 0.5); }
+  50% { stroke-opacity: calc(var(--base-opacity, 0.5) * 0.6); }
+}
+
+/* 2 — Soundwave Topography */
+.dir-topo .topo-line {
+  stroke-dasharray: 800;
+  stroke-dashoffset: 800;
+  animation: drawTopo 2.5s ease forwards, topoFloat 8s ease-in-out infinite 2.5s;
+}
+
+@keyframes drawTopo {
+  to { stroke-dashoffset: 0; }
+}
+
+@keyframes topoFloat {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-3px); }
+}
+
+/* 3 — Gradient Smear */
+.dir-smear .smear-band {
+  animation: smearShift 10s ease-in-out infinite;
+}
+
+.dir-smear .smear-1 { animation-delay: 0s; }
+.dir-smear .smear-2 { animation-delay: -3s; }
+
+.dir-smear .smear-line {
+  animation: smearLineGlow 4s ease-in-out infinite;
+}
+
+@keyframes smearShift {
+  0%, 100% { transform: translateY(0); opacity: 1; }
+  50% { transform: translateY(-15px); opacity: 0.85; }
+}
+
+@keyframes smearLineGlow {
+  0%, 100% { opacity: 0.6; }
+  50% { opacity: 0.2; }
+}
+
+/* 4 — Frequency Bars */
+.dir-freq .freq-bar {
+  transform-origin: center;
+  animation: freqPulse 3s ease-in-out infinite;
+}
+
+@keyframes freqPulse {
+  0%, 100% { transform: scaleY(1); }
+  50% { transform: scaleY(0.7); }
+}
+
+/* 5 — Moiré Interference */
+.dir-moire .grid-2 {
+  animation: moireRotate 20s linear infinite;
+  transform-origin: 195px 422px;
+}
+
+@keyframes moireRotate {
+  from { transform: rotate(8deg); }
+  to { transform: rotate(20deg); }
+}
+
+/* 6 — Waveform Portrait */
+.dir-wave .playhead {
+  animation: playheadSweep 6s linear infinite;
+}
+
+.dir-wave .playhead-dot {
+  animation: playheadSweep 6s linear infinite;
+}
+
+@keyframes playheadSweep {
+  0% { transform: translateX(-195px); opacity: 0.15; }
+  50% { opacity: 0.3; }
+  100% { transform: translateX(195px); opacity: 0.15; }
+}
+
+/* 7 — Glitch Columns */
+.dir-glitch .glitch-seg {
+  animation: glitchFlicker 4s step-end infinite;
+}
+
+.dir-glitch .glitch-hline {
+  animation: glitchScan 3s linear infinite;
+}
+
+@keyframes glitchFlicker {
+  0%, 92%, 100% { opacity: var(--base-opacity, 0.3); transform: translateX(0); }
+  93% { opacity: 0; transform: translateX(4px); }
+  96% { opacity: var(--base-opacity, 0.3); transform: translateX(-2px); }
+  97% { opacity: 0; }
+}
+
+@keyframes glitchScan {
+  0% { transform: translateY(-20px); opacity: 0.15; }
+  50% { opacity: 0.3; }
+  100% { transform: translateY(20px); opacity: 0.15; }
+}
+
+/* 8 — Radial Frequency */
+.dir-radial .radial-ray {
+  animation: radialPulse 5s ease-in-out infinite;
+}
+
+@keyframes radialPulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.02); }
+}
+
+/* 9 — Flowing Contours */
+.dir-contour .contour-line {
+  stroke-dasharray: 800;
+  stroke-dashoffset: 800;
+  animation: drawTopo 3s ease forwards, contourDrift 12s ease-in-out infinite 3s;
+}
+
+@keyframes contourDrift {
+  0%, 100% { transform: translateX(0); }
+  50% { transform: translateX(-8px); }
+}
+
+/* 10 — Signal Noise */
+.dir-noise .noise-particle {
+  animation: noiseTwinkle 3s ease-in-out infinite;
+}
+
+@keyframes noiseTwinkle {
+  0%, 100% { opacity: var(--base-opacity, 0.3); }
+  50% { opacity: calc(var(--base-opacity, 0.3) * 0.3); }
+}
+
+/* 11 — Spectrum Bands */
+.dir-spectrum .spectrum-band {
+  animation: spectrumPulse 4s ease-in-out infinite;
+}
+
+@keyframes spectrumPulse {
+  0%, 100% { transform: scaleX(1); }
+  50% { transform: scaleX(0.85); }
+}
+
+/* 12 — Concentric Warp */
+.dir-concentric .concentric-ring {
+  animation: concentricPulse 6s ease-in-out infinite;
+  transform-origin: 195px 400px;
+}
+
+@keyframes concentricPulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.03); }
+}
+
+/* ============================================
+   RESPONSIVE
+   ============================================ */
+
+@media (max-width: 600px) {
+  .directions-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+    padding: 12px;
+  }
+
+  .detail-variants {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+    padding: 0 12px 40px;
+  }
+
+  .explorer-controls { padding: 10px 12px; }
+}
+
+@media (min-width: 900px) {
+  .directions-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+@media (min-width: 1400px) {
+  .directions-grid {
+    grid-template-columns: repeat(6, 1fr);
+  }
+
+  .detail-variants {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}

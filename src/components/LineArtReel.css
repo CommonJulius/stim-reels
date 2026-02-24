@@ -1,0 +1,16 @@
+/* LineArtReel — Container */
+.line-art-reel {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+/* SVG sizing — fit within the reel, centered */
+.line-art-svg {
+  width: 60cqi;
+  height: auto;
+  max-height: 80%;
+}

@@ -1,0 +1,56 @@
+/*
+ * AnimatedText — Stim Lottie text reveal recreated in CSS
+ *
+ * Animation breakdown (from Lottie analysis):
+ * - Each word slides up ~90px
+ * - Rotates from 6deg → 0deg
+ * - Staggered ~100ms per word
+ * - Easing: Stim "emphasized" — cubic-bezier(0.1, 0.7, 0.6, 1)
+ * - Duration: ~750ms per word
+ */
+
+.animated-text {
+  position: relative;
+  width: 100%;
+  pointer-events: none;
+}
+
+.animated-text__line {
+  font-family: 'GeneralSans-Semibold', 'General Sans', sans-serif;
+  font-weight: 600;
+  font-size: 9.6cqi; /* 36px at 375px reel width */
+  line-height: 1.17;
+  margin: 0;
+  text-wrap: balance;
+  word-spacing: 0.05em;
+}
+
+/* Clip wrapper — hides the word while it's below */
+.animated-text__word-wrap {
+  display: inline-block;
+  overflow: hidden;
+  vertical-align: bottom;
+}
+
+/* The sliding word */
+.animated-text__word {
+  display: inline-block;
+  transform: translateY(110%) rotate(10deg);
+  transform-origin: left bottom;
+  transition:
+    transform 400ms cubic-bezier(0.1, 0.7, 0.6, 1),
+    opacity 300ms cubic-bezier(0.1, 0.7, 0.6, 1);
+  opacity: 0;
+  will-change: transform, opacity;
+}
+
+.animated-text__word--visible {
+  transform: translateY(0) rotate(0deg);
+  opacity: 1;
+}
+
+/* H2 variant — 32px / 36px at 375px reel width */
+.animated-text--h2 .animated-text__line {
+  font-size: 8.53cqi;
+  line-height: 1.125;
+}

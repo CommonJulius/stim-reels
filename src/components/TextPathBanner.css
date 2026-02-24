@@ -1,0 +1,11 @@
+/* TextPathBanner — full-bleed container */
+.text-path-banner {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+
+.text-path-banner-svg {
+  width: 100%;
+  height: 100%;
+}
