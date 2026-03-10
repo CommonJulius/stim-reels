@@ -33,3 +33,12 @@
   opacity: 1;
   transition: opacity 0ms step-start;
 }
+
+/* Large variant — 28px / 34px semibold at 375px reel width */
+.typewriter-text--lg {
+  font-family: 'GeneralSans-Semibold', 'General Sans', sans-serif;
+  font-weight: 600;
+  font-size: 7.47cqi;
+  line-height: 1.214;
+  margin-top: 0;
+}

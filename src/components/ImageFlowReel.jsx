@@ -1,12 +1,13 @@
-import React, { useState, useEffect, useMemo, useRef } from 'react'
+import React, { useState, useEffect, useMemo, useRef, useCallback } from 'react'
+import { Player } from '@lottiefiles/react-lottie-player'
 import { TypewriterText } from './TypewriterText'
 import { CircleDoodle } from './CircleDoodle'
 import './ImageFlowReel.css'
 
 /**
  * ImageFlowReel — Animated image reel with 3 phases:
- * 1. Images flow upward in staggered columns (editorial collage)
- * 2. Text appears once images pass the top
+ * 1. Lottie animation of images flowing (replaces coded columns)
+ * 2. Text appears once Lottie nears completion
  * 3. Images re-enter at the bottom as a slowly rotating carousel
  */
 export function ImageFlowReel({
@@ -21,6 +22,13 @@ export function ImageFlowReel({
   const [phase, setPhase] = useState('idle')
   const [hasTriggered, setHasTriggered] = useState(false)
   const timersRef = useRef([])
+  const lottieRef = useRef(null)
+  const lottieLoadedRef = useRef(false)
+  const carouselLottieRef = useRef(null)
+  const carouselLoadedRef = useRef(false)
+  const isActiveRef = useRef(isActive)
+
+  isActiveRef.current = isActive
 
   const clearTimers = () => {
     timersRef.current.forEach(id => clearTimeout(id))
@@ -32,6 +40,8 @@ export function ImageFlowReel({
       setPhase('idle')
       setHasTriggered(false)
       clearTimers()
+      if (lottieRef.current) lottieRef.current.stop()
+      if (carouselLottieRef.current) carouselLottieRef.current.stop()
     }
   }, [isActive])
 
@@ -40,7 +50,13 @@ export function ImageFlowReel({
       setHasTriggered(true)
       setPhase('flow-up')
 
-      const textStart = 3400
+      // Start the Lottie
+      if (lottieRef.current && lottieLoadedRef.current) {
+        lottieRef.current.play()
+      }
+
+      // Lottie sped up to ~4.5s — start text near the end, carousel shortly after
+      const textStart = 3800
       const t1 = setTimeout(() => setPhase('text'), textStart)
       timersRef.current.push(t1)
 
@@ -49,42 +65,28 @@ export function ImageFlowReel({
     }
   }, [isActive, hasTriggered])
 
-  // Split into two columns
-  const columns = useMemo(() => {
-    const col1 = []
-    const col2 = []
-    images.forEach((img, i) => {
-      if (i % 2 === 0) col1.push({ src: img, index: i })
-      else col2.push({ src: img, index: i })
-    })
-    return [col1, col2]
-  }, [images])
+  const handleLottieEvent = useCallback((event) => {
+    if (event === 'load') {
+      lottieLoadedRef.current = true
+      if (isActiveRef.current && lottieRef.current) {
+        lottieRef.current.play()
+      }
+    }
+  }, [])
 
-  // Carousel: fanned stack of images in a bowl/arc shape
-  // Only show a subset — like physical photos spread on a table
-  const carouselImages = useMemo(() => {
-    if (images.length === 0) return []
-    // Use up to 7 images for the fan
-    const subset = images.slice(0, Math.min(images.length, 7))
-    const count = subset.length
-    const totalSpread = 70 // cqi — how wide the fan spreads
-    const startX = (100 - totalSpread) / 2 // center the fan
+  const handleCarouselLottieEvent = useCallback((event) => {
+    if (event === 'load') {
+      carouselLoadedRef.current = true
+    }
+  }, [])
 
-    return subset.map((src, i) => {
-      const t = count === 1 ? 0.5 : i / (count - 1) // 0 → 1
-      // X: spread evenly across the fan width
-      const cx = startX + t * totalSpread
-      // Bowl arc: center dips DOWN, edges sit higher
-      // Use negative cosine so center is lowest
-      const arcDepth = 8 // cqi — how deep the bowl dips
-      const cy = -(Math.cos((t - 0.5) * Math.PI) * arcDepth) // negative = lower
-      // Fan rotation: edges tilt outward
-      const rotation = (t - 0.5) * 12
-      return { src, index: i, cx, cy, rotation }
-    })
-  }, [images])
+  // Start carousel Lottie when carousel phase begins
+  useEffect(() => {
+    if (phase === 'carousel' && carouselLottieRef.current && carouselLoadedRef.current) {
+      carouselLottieRef.current.play()
+    }
+  }, [phase])
 
-  const isFlowing = phase === 'flow-up'
   const showText = phase === 'text' || phase === 'carousel'
 
   return (
@@ -95,32 +97,20 @@ export function ImageFlowReel({
       {/* Circle doodle line art — centered top, starts with text */}
       <CircleDoodle isActive={showText} />
 
-      {/* Phase 1: Staggered flowing columns — each image moves independently */}
-      <div className="image-flow-columns">
-        {columns.map((col, colIndex) => (
-          <div
-            className="image-flow-column"
-            key={colIndex}
-          >
-            {col.map(({ src, index }, itemIndex) => {
-              // Per-image stagger: column offset + item position within column
-              const baseDelay = colIndex * 120
-              const itemDelay = baseDelay + itemIndex * 120
-              return (
-                <div
-                  className={`image-flow-item ${isFlowing ? 'image-flow-item--active' : ''}`}
-                  key={index}
-                  style={{
-                    '--item-delay': `${itemDelay}ms`,
-                    '--item-duration': `${4500 + itemIndex * 150}ms`,
-                  }}
-                >
-                  <img src={src} alt="" draggable={false} />
-                </div>
-              )
-            })}
-          </div>
-        ))}
+      {/* Phase 1: Lottie image flow animation */}
+      <div className="image-flow-lottie">
+        <Player
+          ref={lottieRef}
+          src="/image-flow-bg.json"
+          loop={false}
+          autoplay={false}
+          keepLastFrame={true}
+          speed={1.33}
+          background="transparent"
+          renderer="svg"
+          style={{ position: 'absolute', inset: 0, width: '100%', height: '100%' }}
+          onEvent={handleLottieEvent}
+        />
       </div>
 
       {/* Phase 2: Text */}
@@ -152,25 +142,19 @@ export function ImageFlowReel({
         />
       </div>
 
-      {/* Phase 3: Fanned carousel with bowl arc */}
+      {/* Phase 3: Carousel Lottie */}
       <div className={`image-flow-carousel ${phase === 'carousel' ? 'image-flow-carousel--visible' : ''}`}>
-        <div className="image-flow-carousel-track">
-          {carouselImages.map(({ src, index, cx, cy, rotation }, i) => (
-            <div
-              className="image-flow-carousel-item"
-              key={index}
-              style={{
-                '--cx': `${cx}cqi`,
-                '--cy': `${cy}cqi`,
-                '--rot': `${rotation}deg`,
-                '--enter-delay': `${i * 80}ms`,
-                zIndex: i,
-              }}
-            >
-              <img src={src} alt="" draggable={false} />
-            </div>
-          ))}
-        </div>
+        <Player
+          ref={carouselLottieRef}
+          src="/image-carousel-bg.json"
+          loop={true}
+          autoplay={false}
+          speed={0.2}
+          background="transparent"
+          renderer="svg"
+          style={{ position: 'absolute', inset: 0, width: '100%', height: '100%' }}
+          onEvent={handleCarouselLottieEvent}
+        />
       </div>
     </div>
   )

@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { Player } from '@lottiefiles/react-lottie-player'
 import { DotLottieReact } from '@lottiefiles/dotlottie-react'
-import { ReelsContainer, ReelItem, AnimatedText, TypewriterText, ImageFlowReel, LineArtReel, TextPathBanner, KnotDoodle } from './components'
+import { ReelsContainer, ReelItem, AnimatedText, TypewriterText, ImageFlowReel, LineArtReel, TextPathBanner, KnotDoodle, IntroOverlay, MarqueeBanners } from './components'
 import './App.css'
 
 /**
@@ -35,7 +35,7 @@ const COLOR_SCHEMES = {
 /**
  * LottieLayer — plays a Lottie JSON via Player, controlled by isActive
  */
-function LottieLayer({ src, isActive, loop = false, style }) {
+function LottieLayer({ src, isActive, loop = false, speed = 1, style }) {
   const ref = useRef(null)
   const loadedRef = useRef(false)
   const isActiveRef = useRef(isActive)
@@ -58,6 +58,7 @@ function LottieLayer({ src, isActive, loop = false, style }) {
       loop={loop}
       autoplay={false}
       keepLastFrame={!loop}
+      speed={speed}
       background="transparent"
       renderer="svg"
       style={style || { position: 'absolute', inset: 0, width: '100%', height: '100%' }}
@@ -124,6 +125,17 @@ function App() {
   return (
     <div className="app">
       <ReelsContainer onReelChange={handleReelChange}>
+        {/* Reel 0: Intro — Lottie bg + swipe hint overlay */}
+        <ReelItem
+          type="lottie"
+          src="/intro-bg.json"
+          backgroundColor="#DEDBFB"
+          loop={false}
+          overlay={({ isActive }) => (
+            <IntroOverlay isActive={isActive} />
+          )}
+        />
+
         {/* Reel 1: Purple Bright — Lottie bg + text overlay */}
         <ReelItem
           type="lottie"
@@ -132,19 +144,13 @@ function App() {
           graphicsColor={scheme1.graphics}
           loop={false}
           overlay={({ isActive }) => (
-            <div className="reel-text-block">
-              <AnimatedText
-                text="Ett sekel av musikskydd"
-                isActive={isActive}
-                color={scheme1.text}
-              />
-              <TypewriterText
-                text="För 100 år sedan gjorde Stims medlemmar ett historiskt val: att skydda musikalisk mångfald och upphovsrätt för kommande generationer."
-                isActive={isActive}
-                color={scheme1.body}
-                delay={1000}
-              />
-            </div>
+            <TypewriterText
+              text="För *100 år* sedan tog Stims medlemmar beslutet att värna *musikalisk mångfald* och *upphovsrätt.*"
+              isActive={isActive}
+              color={scheme1.text}
+              className="typewriter-text--lg"
+              delay={500}
+            />
           )}
         />
 
@@ -158,8 +164,8 @@ function App() {
               backgroundColor={scheme2.bg}
               textColor={scheme2.text}
               bodyColor={scheme2.body}
-              heading="Från då till nu"
-              body="Under åren har arbetet utvecklats. Idag genomför vi ett stort antal initiativ för att stärka svenskt musikskapande."
+              heading=""
+              body="Idag genomför vi ett stort antal initiativ för att *stärka svenskt musikskapande.*"
               images={[
                 '/images/Stipendiater_Stim_Stipendiefesten_2025_PaoDuell_32.webp',
                 '/images/Mingel_Stipendiefesten_2025_PaoDuell_112.webp',
@@ -190,60 +196,27 @@ function App() {
               src="/stats-overlay.json"
               isActive={isActive}
               loop={true}
+              speed={0.8}
             />
           )}
         />
 
-        {/* Reel 4: Text Path Banner + heading */}
+        {/* Reel 4: Marquee banners + heading */}
         <ReelItem
           type="custom"
           backgroundColor="#DEDBFB"
           overlay={({ isActive }) => (
             <>
-              <TextPathBanner
+              <MarqueeBanners
                 isActive={isActive}
-                backgroundColor="#DEDBFB"
                 color="#050038"
-                items={[
-                  'Jazzahead',
-                  'Katarina Cup',
-                  'You+MUSIC',
-                  'Din Musikbusiness',
-                  'Make Music Matter',
-                  'Classical Next',
-                  'Fryshuset Musik',
-                  'Jämlikhetslistan',
-                  'Vem Kan Bli Producent',
-                  'Subkult Festival',
-                  'Live at Heart',
-                  'Denniz Pop Awards',
-                  'Svensk Musik',
-                  'FST',
-                  'Skap',
-                  'Musikförläggarna',
-                  'Nordic Music Journeys',
-                  'Swedish Sounds',
-                  'Sthlm Sessions',
-                  'Stim popup studio The Node',
-                  'Stim popup studio Ljudgården',
-                  'Stim popup studio Sensus Göteborg',
-                  'Stim popup studio Sensus Sundsvall',
-                  'Konstmusiksystrar',
-                  'Rhuba Camp',
-                  'Livemusiklyftet',
-                  'Radiovågen',
-                  'Projektstöd: Musikdrömmen',
-                  'Projektstöd: Förlagskraft',
-                  'Stimstipendiet',
-                ]}
-                fontSize={18}
               />
               <AnimatedText
-                text="Och en mängd andra initativ"
+                text="Och en mängd andra initiativ"
                 isActive={isActive}
                 color="#050038"
-                className="animated-text--h2"
-                style={{ position: 'relative', zIndex: 1, marginBottom: 'auto', paddingTop: '32cqi', maxWidth: '62cqi', alignSelf: 'center' }}
+                className="animated-text--h1"
+                style={{ position: 'relative', zIndex: 1, marginBottom: 'auto', paddingTop: '56.53cqi' }}
               />
             </>
           )}
@@ -284,7 +257,7 @@ function App() {
 
       {/* Reel indicator dots */}
       <div className="reel-indicators">
-        {[...Array(5)].map((_, i) => (
+        {[...Array(6)].map((_, i) => (
           <div
             key={i}
             className={`indicator ${i === currentIndex ? 'active' : ''}`}

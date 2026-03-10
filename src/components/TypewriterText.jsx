@@ -44,7 +44,19 @@ export function TypewriterText({
     }
   }, [isActive])
 
-  const words = useMemo(() => text.split(/\s+/).filter(Boolean), [text])
+  // Parse text with *italic* markers into word objects
+  const words = useMemo(() => {
+    const result = []
+    const parts = text.split(/(\*[^*]+\*)/g)
+    parts.forEach(part => {
+      if (part.startsWith('*') && part.endsWith('*')) {
+        part.slice(1, -1).split(/\s+/).filter(Boolean).forEach(w => result.push({ word: w, italic: true }))
+      } else {
+        part.split(/\s+/).filter(Boolean).forEach(w => result.push({ word: w, italic: false }))
+      }
+    })
+    return result
+  }, [text])
 
   // Pre-calculate eased delays for each word
   const wordDelays = useMemo(() => {
@@ -64,7 +76,7 @@ export function TypewriterText({
         ...style,
       }}
     >
-      {words.map((word, i) => (
+      {words.map((item, i) => (
         <React.Fragment key={i}>
           <span
             className={`typewriter-text__word ${hasTriggered ? 'typewriter-text__word--visible' : ''}`}
@@ -72,9 +84,10 @@ export function TypewriterText({
               transitionDelay: hasTriggered
                 ? `${delay + wordDelays[i]}ms`
                 : '0ms',
+              fontStyle: item.italic ? 'italic' : undefined,
             }}
           >
-            {word}
+            {item.word}
           </span>
           {i < words.length - 1 ? ' ' : null}
         </React.Fragment>

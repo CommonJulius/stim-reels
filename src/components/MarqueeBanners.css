@@ -1,0 +1,63 @@
+/* MarqueeBanners — infinite scrolling text rows */
+.marquee-banners {
+  position: absolute;
+  inset: 0;
+  /* Break out of overlay padding */
+  left: -8.53cqi;
+  right: -8.53cqi;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding-bottom: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.marquee-banner {
+  overflow: hidden;
+  white-space: nowrap;
+  /* 32px / 36px at 375px → 8.53cqi, line-height 1.125 */
+  font-family: 'GeneralSans-Medium', 'General Sans', sans-serif;
+  font-weight: 500;
+  font-size: 8.53cqi;
+  line-height: 1.125;
+  padding: 0.8cqi 0;
+}
+
+.marquee-banner__track {
+  display: inline-flex;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+}
+
+/* Right to left: start at 0, slide left by half (one copy) */
+.marquee-banner--rtl .marquee-banner__track {
+  animation-name: marquee-rtl;
+}
+
+/* Left to right: start offset left, slide to 0 */
+.marquee-banner--ltr .marquee-banner__track {
+  animation-name: marquee-ltr;
+}
+
+@keyframes marquee-rtl {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+@keyframes marquee-ltr {
+  0% {
+    transform: translateX(-50%);
+  }
+  100% {
+    transform: translateX(0);
+  }
+}
+
+.marquee-banner__text {
+  flex-shrink: 0;
+}

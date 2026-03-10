@@ -10,7 +10,7 @@ const DEFAULTS = {
   scale: 3,
   numOctaves: 5,
   seed: 42,
-  strokeWidth: 3,
+  strokeWidth: 2.5,
 }
 
 /**
