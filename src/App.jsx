@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { Player } from '@lottiefiles/react-lottie-player'
 import { DotLottieReact } from '@lottiefiles/dotlottie-react'
-import { ReelsContainer, ReelItem, AnimatedText, TypewriterText, ImageFlowReel, LineArtReel, TextPathBanner, KnotDoodle, IntroOverlay, MarqueeBanners } from './components'
+import { ReelsContainer, ReelItem, AnimatedText, TypewriterText, ImageFlowReel, LineArtReel, TextPathBanner, KnotDoodle, IntroOverlay, MarqueeBanners, NumberMarquee, ScribbleDoodle, LogoMarquee } from './components'
 import './App.css'
 
 /**
@@ -89,6 +89,11 @@ function DotLottieLayer({ src, isActive, loop = false, style }) {
           dotLottie.play()
         }
       })
+      dotLottie.addEventListener('ready', () => {
+        if (isActiveRef.current) {
+          dotLottie.play()
+        }
+      })
     }
   }, [])
 
@@ -105,159 +110,387 @@ function DotLottieLayer({ src, isActive, loop = false, style }) {
     <DotLottieReact
       src={src}
       loop={loop}
-      autoplay={false}
+      autoplay={isActive}
       dotLottieRefCallback={dotLottieRefCallback}
       style={style || { position: 'absolute', inset: 0, width: '100%', height: '100%' }}
     />
   )
 }
 
+/**
+ * StatsReelContent — stacks two dotLottie animations (bg circles + stats overlay)
+ * as direct children, avoiding the overlay canvas rendering issue.
+ */
+function StatsReelContent({ isActive }) {
+  const bgRef = useRef(null)
+  const statsRef = useRef(null)
+  const isActiveRef = useRef(isActive)
+  isActiveRef.current = isActive
+
+  const bgCallback = useCallback((dotLottie) => {
+    bgRef.current = dotLottie
+    if (dotLottie) {
+      dotLottie.addEventListener('load', () => {
+        if (isActiveRef.current) dotLottie.play()
+      })
+    }
+  }, [])
+
+  const statsCallback = useCallback((dotLottie) => {
+    statsRef.current = dotLottie
+    if (dotLottie) {
+      dotLottie.addEventListener('load', () => {
+        if (isActiveRef.current) dotLottie.play()
+      })
+    }
+  }, [])
+
+  useEffect(() => {
+    ;[bgRef, statsRef].forEach(ref => {
+      if (!ref.current) return
+      if (isActive) ref.current.play()
+      else ref.current.stop()
+    })
+  }, [isActive])
+
+  return (
+    <>
+      <DotLottieReact
+        src="https://lottie.host/247d2af7-05bd-4659-90c0-1f85872dd94d/1bFMn4vwqg.lottie"
+        loop
+        autoplay={false}
+        dotLottieRefCallback={bgCallback}
+        style={{ position: 'absolute', inset: 0, width: '100%', height: '100%' }}
+      />
+      <DotLottieReact
+        src="https://lottie.host/c0c87c47-1896-4809-bd6d-eab1ac747189/sFz5239OqN.lottie"
+        loop
+        autoplay={false}
+        dotLottieRefCallback={statsCallback}
+        style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', zIndex: 2 }}
+      />
+    </>
+  )
+}
+
+const COLLECTIONS = {
+  musikframjande: { label: 'Musikfrämjande', reelCount: 7 },
+  kortom2025: { label: 'Kort om 2025', reelCount: 3 },
+}
+
+function CollectionSwitcher({ active, onChange }) {
+  return (
+    <div className="collection-switcher">
+      {Object.entries(COLLECTIONS).map(([key, { label }]) => (
+        <button
+          key={key}
+          className={`collection-btn ${active === key ? 'active' : ''}`}
+          onClick={() => onChange(key)}
+        >
+          {label}
+        </button>
+      ))}
+    </div>
+  )
+}
+
+function MusikframjandeReels({ onReelChange }) {
+  const scheme1 = COLOR_SCHEMES['purple-bright']
+  const scheme2 = COLOR_SCHEMES['purple-mix-1-inverted']
+
+  return (
+    <ReelsContainer onReelChange={onReelChange}>
+      {/* Reel 0: Intro — Lottie bg + swipe hint overlay */}
+      <ReelItem
+        type="lottie"
+        src="/intro-bg-new.json"
+        backgroundColor="#DEDBFB"
+        loop={false}
+        overlay={({ isActive }) => (
+          <IntroOverlay isActive={isActive} />
+        )}
+      />
+
+      {/* Reel 1: Purple Bright — Lottie bg + text overlay */}
+      <ReelItem
+        type="lottie"
+        src="/fishbones-bg.json"
+        backgroundColor={scheme1.bg}
+        graphicsColor={scheme1.graphics}
+        loop={false}
+        overlay={({ isActive }) => (
+          <TypewriterText
+            text="För *100 år* sedan tog Stims medlemmar beslutet att värna *musikalisk mångfald* och *upphovsrätt.*"
+            isActive={isActive}
+            color={scheme1.text}
+            className="typewriter-text--lg"
+            delay={500}
+          />
+        )}
+      />
+
+      {/* Reel 2: Image flow — dark navy */}
+      <ReelItem
+        type="custom"
+        backgroundColor={scheme2.bg}
+        overlay={({ isActive }) => (
+          <ImageFlowReel
+            isActive={isActive}
+            backgroundColor={scheme2.bg}
+            textColor={scheme2.text}
+            bodyColor={scheme2.body}
+            heading=""
+            body="Idag genomför vi ett stort antal initiativ för att *stärka svenskt musikskapande.*"
+            images={[
+              '/images/Stipendiater_Stim_Stipendiefesten_2025_PaoDuell_32.webp',
+              '/images/Mingel_Stipendiefesten_2025_PaoDuell_112.webp',
+              '/images/Stim_Music_for_Strings_&_Silk_PaoDuell_2025_46.webp',
+              '/images/Stipendiater_Stim_Stipendiefesten_2025_PaoDuell_103.webp',
+              '/images/POPKOLLO_PRESS_7.webp',
+              '/images/Stim_Samla_Världens_Musik_2025_PaoDuell_38.webp',
+              '/images/Mingel_Stipendiefesten_2025_PaoDuell_101.webp',
+              '/images/8. KUNGÄLV FORTS.webp',
+              '/images/Stim_Music_for_Strings_&_Silk_PaoDuell_2025_50.webp',
+              '/images/Stim_Samla_Världens_Musik_2025_PaoDuell_21 1.webp',
+              '/images/_DSC2384.webp',
+            ]}
+          />
+        )}
+      >
+        <div />
+      </ReelItem>
+
+      {/* Reel 3: Sound circles bg + Stats overlay */}
+      <ReelItem
+        type="dotlottie"
+        src="https://lottie.host/247d2af7-05bd-4659-90c0-1f85872dd94d/1bFMn4vwqg.lottie"
+        backgroundColor="#a9a0e1"
+        loop={true}
+        overlay={({ isActive }) => (
+          <LottieLayer
+            src="https://lottie.host/9caa2bd1-f3db-48cd-b234-9638ef6db8cd/PVURpzsbjU.json"
+            isActive={isActive}
+            loop={true}
+            speed={0.8}
+          />
+        )}
+      />
+
+      {/* Reel 4: Marquee banners + heading */}
+      <ReelItem
+        type="custom"
+        backgroundColor="#DEDBFB"
+        overlay={({ isActive }) => (
+          <>
+            <MarqueeBanners
+              isActive={isActive}
+              color="#050038"
+            />
+            <AnimatedText
+              text="Och en mängd andra initiativ"
+              isActive={isActive}
+              color="#050038"
+              className="animated-text--h1"
+              style={{ position: 'relative', zIndex: 1, marginBottom: 'auto', paddingTop: '56.53cqi' }}
+            />
+          </>
+        )}
+      >
+        <div />
+      </ReelItem>
+
+      {/* Reel 5: Lottie bg + paragraph */}
+      <ReelItem
+        type="dotlottie"
+        src="https://lottie.host/eedcc4b2-d7b6-4f2c-9d7e-66371daeb20b/rNKDRvNcpJ.lottie"
+        backgroundColor="#DEDBFB"
+        loop={false}
+        overlay={({ isActive }) => (
+          <>
+            <TypewriterText
+              text="Stims musikfrämjande arbete har gett generationer av kompositörer, låtskrivare och text-författare bättre förutsättningar att skapa och nå ut med sin musik"
+              isActive={isActive}
+              color="#050038"
+              style={{ marginTop: 'auto', paddingBottom: '36.27cqi' }}
+            />
+            <KnotDoodle
+              isActive={isActive}
+              duration={2}
+              style={{
+                position: 'absolute',
+                bottom: '2.13cqi',
+                left: '50%',
+                transform: 'translateX(-50%)',
+                width: '100%',
+                pointerEvents: 'none',
+              }}
+            />
+          </>
+        )}
+      />
+      {/* Reel 6: Logo marquee + scribble */}
+      <ReelItem
+        type="custom"
+        backgroundColor="#E8E6FB"
+        overlay={({ isActive }) => (
+          <>
+            <ScribbleDoodle
+              isActive={isActive}
+              color="#CCC5F7"
+              duration={2.5}
+              style={{
+                position: 'absolute',
+                top: '-95cqi',
+                left: '-10cqi',
+                width: '160%',
+                pointerEvents: 'none',
+              }}
+            />
+            <div style={{ position: 'relative', zIndex: 1, marginBottom: 'auto', paddingTop: '52.8cqi' }}>
+              <AnimatedText
+                text="Tillsammans för musiken"
+                isActive={isActive}
+                color="#050038"
+                className="animated-text--h1"
+                delay={900}
+              />
+              <TypewriterText
+                text="Våra föreningar arbetar också för en större musikalisk mångfald. Tillsammans skapar vi ett rikare musikliv."
+                isActive={isActive}
+                color="#050038"
+                delay={1200}
+              />
+            </div>
+            <LogoMarquee
+              isActive={isActive}
+              duration={25}
+              delay={1500}
+            />
+          </>
+        )}
+      >
+        <div />
+      </ReelItem>
+    </ReelsContainer>
+  )
+}
+
+function KortOm2025Reels({ onReelChange }) {
+  return (
+    <ReelsContainer onReelChange={onReelChange}>
+      {/* Reel 0: "Under 2025 samlade vi in" + number marquee */}
+      <ReelItem
+        type="custom"
+        backgroundColor="#E8E6FB"
+        overlay={({ isActive }) => (
+          <>
+            <ScribbleDoodle
+              isActive={isActive}
+              color="#CCC5F7"
+              duration={2.5}
+              style={{
+                position: 'absolute',
+                top: '-95cqi',
+                left: '-10cqi',
+                width: '160%',
+                pointerEvents: 'none',
+              }}
+            />
+            <div style={{ position: 'relative', zIndex: 1, marginBottom: 'auto', paddingTop: '52.8cqi' }}>
+              <AnimatedText
+                text="Under 2025 samlade vi in"
+                isActive={isActive}
+                color="#452531"
+                className="animated-text--h1"
+                delay={900}
+              />
+              <TypewriterText
+                text="Tre miljarder sextioåtta miljoner kronor, Från överallt där musiken används"
+                isActive={isActive}
+                color="#452531"
+                delay={1200}
+              />
+            </div>
+            <NumberMarquee
+              number="3 068 000 000"
+              isActive={isActive}
+              color="#452531"
+              duration={50}
+              delay={1500}
+            />
+          </>
+        )}
+      >
+        <div />
+      </ReelItem>
+
+      {/* Reel 1: Placeholder */}
+      <ReelItem
+        type="lottie"
+        src="/fishbones-bg.json"
+        backgroundColor="#E8E6FB"
+        graphicsColor="#CCC5F7"
+        loop={false}
+        overlay={({ isActive }) => (
+          <TypewriterText
+            text="Innehåll kommer snart..."
+            isActive={isActive}
+            color="#452531"
+            className="typewriter-text--lg"
+            delay={500}
+          />
+        )}
+      />
+
+      {/* Reel 2: Placeholder */}
+      <ReelItem
+        type="dotlottie"
+        src="https://lottie.host/eedcc4b2-d7b6-4f2c-9d7e-66371daeb20b/rNKDRvNcpJ.lottie"
+        backgroundColor="#E8E6FB"
+        loop={false}
+        overlay={({ isActive }) => (
+          <TypewriterText
+            text="Fler reels på väg..."
+            isActive={isActive}
+            color="#452531"
+            style={{ marginTop: 'auto', paddingBottom: '36.27cqi' }}
+          />
+        )}
+      />
+    </ReelsContainer>
+  )
+}
+
 function App() {
   const [currentIndex, setCurrentIndex] = useState(0)
+  const [activeCollection, setActiveCollection] = useState('musikframjande')
 
   const handleReelChange = (index) => {
     setCurrentIndex(index)
   }
 
-  const scheme1 = COLOR_SCHEMES['purple-bright']
-  const scheme2 = COLOR_SCHEMES['purple-mix-1-inverted']
+  const handleCollectionChange = (key) => {
+    if (key === activeCollection) return
+    setActiveCollection(key)
+    setCurrentIndex(0)
+  }
+
+  const reelCount = COLLECTIONS[activeCollection].reelCount
 
   return (
     <div className="app">
-      <ReelsContainer onReelChange={handleReelChange}>
-        {/* Reel 0: Intro — Lottie bg + swipe hint overlay */}
-        <ReelItem
-          type="lottie"
-          src="/intro-bg.json"
-          backgroundColor="#DEDBFB"
-          loop={false}
-          overlay={({ isActive }) => (
-            <IntroOverlay isActive={isActive} />
-          )}
-        />
+      <CollectionSwitcher active={activeCollection} onChange={handleCollectionChange} />
 
-        {/* Reel 1: Purple Bright — Lottie bg + text overlay */}
-        <ReelItem
-          type="lottie"
-          src="/fishbones-bg.json"
-          backgroundColor={scheme1.bg}
-          graphicsColor={scheme1.graphics}
-          loop={false}
-          overlay={({ isActive }) => (
-            <TypewriterText
-              text="För *100 år* sedan tog Stims medlemmar beslutet att värna *musikalisk mångfald* och *upphovsrätt.*"
-              isActive={isActive}
-              color={scheme1.text}
-              className="typewriter-text--lg"
-              delay={500}
-            />
-          )}
-        />
-
-        {/* Reel 2: Image flow — dark navy */}
-        <ReelItem
-          type="custom"
-          backgroundColor={scheme2.bg}
-          overlay={({ isActive }) => (
-            <ImageFlowReel
-              isActive={isActive}
-              backgroundColor={scheme2.bg}
-              textColor={scheme2.text}
-              bodyColor={scheme2.body}
-              heading=""
-              body="Idag genomför vi ett stort antal initiativ för att *stärka svenskt musikskapande.*"
-              images={[
-                '/images/Stipendiater_Stim_Stipendiefesten_2025_PaoDuell_32.webp',
-                '/images/Mingel_Stipendiefesten_2025_PaoDuell_112.webp',
-                '/images/Stim_Music_for_Strings_&_Silk_PaoDuell_2025_46.webp',
-                '/images/Stipendiater_Stim_Stipendiefesten_2025_PaoDuell_103.webp',
-                '/images/POPKOLLO_PRESS_7.webp',
-                '/images/Stim_Samla_Världens_Musik_2025_PaoDuell_38.webp',
-                '/images/Mingel_Stipendiefesten_2025_PaoDuell_101.webp',
-                '/images/8. KUNGÄLV FORTS.webp',
-                '/images/Stim_Music_for_Strings_&_Silk_PaoDuell_2025_50.webp',
-                '/images/Stim_Samla_Världens_Musik_2025_PaoDuell_21 1.webp',
-                '/images/_DSC2384.webp',
-              ]}
-            />
-          )}
-        >
-          <div />
-        </ReelItem>
-
-        {/* Reel 3: Sound circles bg + Stats overlay */}
-        <ReelItem
-          type="dotlottie"
-          src="https://lottie.host/247d2af7-05bd-4659-90c0-1f85872dd94d/1bFMn4vwqg.lottie"
-          backgroundColor="#a9a0e1"
-          loop={true}
-          overlay={({ isActive }) => (
-            <LottieLayer
-              src="/stats-overlay.json"
-              isActive={isActive}
-              loop={true}
-              speed={0.8}
-            />
-          )}
-        />
-
-        {/* Reel 4: Marquee banners + heading */}
-        <ReelItem
-          type="custom"
-          backgroundColor="#DEDBFB"
-          overlay={({ isActive }) => (
-            <>
-              <MarqueeBanners
-                isActive={isActive}
-                color="#050038"
-              />
-              <AnimatedText
-                text="Och en mängd andra initiativ"
-                isActive={isActive}
-                color="#050038"
-                className="animated-text--h1"
-                style={{ position: 'relative', zIndex: 1, marginBottom: 'auto', paddingTop: '56.53cqi' }}
-              />
-            </>
-          )}
-        >
-          <div />
-        </ReelItem>
-
-        {/* Reel 5: Lottie bg + paragraph */}
-        <ReelItem
-          type="dotlottie"
-          src="https://lottie.host/eedcc4b2-d7b6-4f2c-9d7e-66371daeb20b/rNKDRvNcpJ.lottie"
-          backgroundColor="#DEDBFB"
-          loop={false}
-          overlay={({ isActive }) => (
-            <>
-              <TypewriterText
-                text="Stims musikfrämjande arbete har gett generationer av kompositörer, låtskrivare och text-författare bättre förutsättningar att skapa och nå ut med sin musik"
-                isActive={isActive}
-                color="#050038"
-                style={{ marginTop: 'auto', paddingBottom: '36.27cqi' }}
-              />
-              <KnotDoodle
-                isActive={isActive}
-                duration={2}
-                style={{
-                  position: 'absolute',
-                  bottom: '2.13cqi',
-                  left: '50%',
-                  transform: 'translateX(-50%)',
-                  width: '100%',
-                  pointerEvents: 'none',
-                }}
-              />
-            </>
-          )}
-        />
-      </ReelsContainer>
+      {activeCollection === 'musikframjande' && (
+        <MusikframjandeReels onReelChange={handleReelChange} />
+      )}
+      {activeCollection === 'kortom2025' && (
+        <KortOm2025Reels onReelChange={handleReelChange} />
+      )}
 
       {/* Reel indicator dots */}
       <div className="reel-indicators">
-        {[...Array(6)].map((_, i) => (
+        {[...Array(reelCount)].map((_, i) => (
           <div
             key={i}
             className={`indicator ${i === currentIndex ? 'active' : ''}`}

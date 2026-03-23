@@ -70,6 +70,7 @@ export function ReelItem({
   const [lottieLoaded, setLottieLoaded] = useState(false)
   const [dotLottieLoaded, setDotLottieLoaded] = useState(false)
   const [lottieData, setLottieData] = useState(null) // recolored JSON data
+  const [restartKey, setRestartKey] = useState(0)
   const isVisibleRef = useRef(isVisible)
 
   // Fetch and recolor Lottie JSON when graphicsColor is set
@@ -181,6 +182,25 @@ export function ReelItem({
     }
   }
 
+  const handleRestart = (e) => {
+    e.stopPropagation()
+    // Reset background Lottie/video
+    if (type === 'video' && videoRef.current) {
+      videoRef.current.currentTime = 0
+      videoRef.current.play()
+    }
+    if (type === 'lottie' && lottieRef.current) {
+      lottieRef.current.stop()
+      lottieRef.current.play()
+    }
+    if (type === 'dotlottie' && dotLottieRef.current) {
+      dotLottieRef.current.stop()
+      dotLottieRef.current.play()
+    }
+    // Bump key to remount overlay (resets all overlay animations)
+    setRestartKey(k => k + 1)
+  }
+
   // For lottie type: use recolored data if available, otherwise src URL
   const lottieSrc = (graphicsColor && lottieData) ? lottieData : src
 
@@ -274,7 +294,7 @@ export function ReelItem({
 
         {/* Overlay content (title, animated text, etc.) */}
         {overlay && (
-          <div className="reel-overlay">
+          <div className="reel-overlay" key={restartKey}>
             {typeof overlay === 'function'
               ? overlay({ isActive: isVisible })
               : React.Children.map(overlay.props ? [overlay] : [], child =>
@@ -284,6 +304,15 @@ export function ReelItem({
                 ) || overlay}
           </div>
         )}
+
+        {/* Restart button */}
+        <button
+          className="reel-restart-btn"
+          onClick={handleRestart}
+          aria-label="Restart reel"
+        >
+          <RestartIcon />
+        </button>
 
         {/* Custom children content */}
         {children}
@@ -313,6 +342,14 @@ function UnmutedIcon() {
   return (
     <svg viewBox="0 0 24 24" fill="white" width="24" height="24">
       <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z" />
+    </svg>
+  )
+}
+
+function RestartIcon() {
+  return (
+    <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16">
+      <path d="M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z" />
     </svg>
   )
 }

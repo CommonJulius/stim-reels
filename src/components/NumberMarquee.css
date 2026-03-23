@@ -1,0 +1,39 @@
+/* NumberMarquee — large rolling number banner */
+.number-marquee {
+  position: absolute;
+  bottom: 0;
+  left: -8.53cqi;
+  right: -8.53cqi;
+  overflow: hidden;
+  white-space: nowrap;
+  pointer-events: none;
+  /* 158px at 375px width ≈ 42.13cqi */
+  font-family: 'GeneralSans-Semibold', 'General Sans', sans-serif;
+  font-weight: 700;
+  font-style: italic;
+  font-size: 42.13cqi;
+  line-height: 1;
+  letter-spacing: -0.02em;
+  padding-bottom: 2cqi;
+}
+
+.number-marquee__track {
+  display: inline-flex;
+  padding-left: 100%;
+  animation-name: number-marquee-scroll;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+}
+
+.number-marquee__text {
+  flex-shrink: 0;
+}
+
+@keyframes number-marquee-scroll {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}

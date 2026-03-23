@@ -60,27 +60,44 @@
   background: #9B7BC7;
 }
 
-/* Language toggle button */
-.language-toggle {
+/* Collection switcher */
+.collection-switcher {
   position: fixed;
   top: 16px;
   right: 16px;
   z-index: 1000;
-  background: rgba(107, 76, 154, 0.8);
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(155, 123, 199, 0.3);
-  color: white;
-  padding: 8px 16px;
+  display: flex;
+  gap: 0;
+  background: rgba(5, 0, 56, 0.25);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   border-radius: 20px;
-  font-size: 14px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s ease;
+  padding: 3px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
 }
 
-.language-toggle:hover {
-  background: rgba(107, 76, 154, 1);
-  transform: scale(1.05);
+.collection-btn {
+  background: transparent;
+  border: none;
+  color: rgba(255, 255, 255, 0.65);
+  padding: 6px 14px;
+  border-radius: 17px;
+  font-size: 12px;
+  font-weight: 600;
+  font-family: 'GeneralSans', sans-serif;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  white-space: nowrap;
+}
+
+.collection-btn:hover {
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.collection-btn.active {
+  background: rgba(255, 255, 255, 0.2);
+  color: #fff;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.15);
 }
 
 /* Scroll hint */

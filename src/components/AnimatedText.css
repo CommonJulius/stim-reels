@@ -49,10 +49,10 @@
   opacity: 1;
 }
 
-/* H1 variant — 40px / 48px at 375px reel width */
+/* H1 variant — 40px / 44px at 375px reel width */
 .animated-text--h1 .animated-text__line {
   font-size: 10.67cqi;
-  line-height: 1.2;
+  line-height: 1.1;
 }
 
 /* H2 variant — 32px / 36px at 375px reel width */

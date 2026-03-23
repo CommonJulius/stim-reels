@@ -1,0 +1,33 @@
+/* LogoMarquee — infinite scrolling logo banner */
+.logo-marquee {
+  position: absolute;
+  bottom: 18cqi;
+  left: -8.53cqi;
+  right: -8.53cqi;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.logo-marquee__track {
+  display: inline-flex;
+  align-items: center;
+  gap: 12cqi;
+  animation-name: logo-marquee-scroll;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+}
+
+.logo-marquee__logo {
+  flex-shrink: 0;
+  height: auto;
+  object-fit: contain;
+}
+
+@keyframes logo-marquee-scroll {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-33.333%);
+  }
+}
