@@ -60,3 +60,9 @@
   font-size: 8.53cqi;
   line-height: 1.125;
 }
+
+/* Body variant — 20px / 28px at 375px reel width */
+.animated-text--body .animated-text__line {
+  font-size: 5.33cqi;
+  line-height: 7.47cqi;
+}
