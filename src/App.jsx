@@ -47,6 +47,8 @@ function LottieLayer({ src, isActive, loop = false, speed = 1, style, onComplete
   useEffect(() => {
     if (!ref.current || !loadedRef.current) return
     if (isActive) {
+      // Seek to start before playing to handle re-activation
+      ref.current.setSeeker(0, false)
       ref.current.play()
     } else {
       ref.current.stop()
@@ -382,76 +384,96 @@ function MusikframjandeReels({ onReelChange }) {
 }
 
 function KortOm2025Intro({ isActive }) {
-  const [phase, setPhase] = useState(0) // 0: intro lottie, 1: second lottie + text
+  const LOOP_START_FRAME = 387 // 6.45s at 60fps
+  const containerRef = useRef(null)
+  const instanceRef = useRef(null)
+  const isActiveRef = useRef(isActive)
+  const [showText, setShowText] = useState(false)
 
+  isActiveRef.current = isActive
+
+  // Load and control lottie-web directly (bypassing Player wrapper issues)
   useEffect(() => {
-    if (!isActive) {
-      setPhase(0)
-      return
+    if (!containerRef.current) return
+    let instance = null
+
+    import('lottie-web').then((lottie) => {
+      if (!containerRef.current) return
+      instance = lottie.default.loadAnimation({
+        container: containerRef.current,
+        renderer: 'svg',
+        loop: false,
+        autoplay: false,
+        path: 'https://lottie.host/2aa6d980-4669-432d-978f-9c386473a6cb/SmpU7wgSEh.json',
+      })
+      instanceRef.current = instance
+
+      instance.addEventListener('DOMLoaded', () => {
+        if (isActiveRef.current) {
+          instance.goToAndPlay(0, true)
+        }
+      })
+
+      instance.addEventListener('complete', () => {
+        if (isActiveRef.current) {
+          setShowText(true)
+          instance.loop = true
+          instance.playSegments([LOOP_START_FRAME, instance.totalFrames], true)
+        }
+      })
+    })
+
+    return () => {
+      if (instance) instance.destroy()
+      instanceRef.current = null
     }
-    const timer = setTimeout(() => setPhase(1), 2000)
-    return () => clearTimeout(timer)
+  }, [])
+
+  // Handle isActive changes (restart, collection switch)
+  useEffect(() => {
+    if (!instanceRef.current) return
+    if (isActive) {
+      setShowText(false)
+      instanceRef.current.loop = false
+      instanceRef.current.goToAndPlay(0, true)
+    } else {
+      setShowText(false)
+      instanceRef.current.stop()
+      instanceRef.current.loop = false
+    }
   }, [isActive])
 
   return (
     <>
-      {/* First Lottie — plays once */}
-      <LottieLayer
-        src="https://lottie.host/c00fcfe8-5a7e-433d-911f-77dc2e62144f/JY38TJRCUZ.json"
-        isActive={isActive}
-        loop={false}
-        style={{
-          position: 'absolute',
-          inset: 0,
-          width: '100%',
-          height: '100%',
-          opacity: phase === 0 ? 1 : 0,
-          transition: 'opacity 0.5s ease',
-        }}
-      />
-
-      {/* Second Lottie — loops after first completes */}
-      <LottieLayer
-        src="https://lottie.host/b3ee3823-759d-4b5d-a86d-73e96c3b3cc7/296ZB6Rt1m.json"
-        isActive={phase === 1}
-        loop={true}
-        style={{
-          position: 'absolute',
-          bottom: 0,
-          left: 0,
-          width: '100%',
-          height: '100%',
-          zIndex: 1,
-          opacity: phase === 1 ? 1 : 0,
-          transition: 'opacity 0.5s ease',
-        }}
-      />
-
-      {/* Title + paragraph — appears after intro */}
+      {/* Title + paragraph — behind the lottie */}
       <div style={{
         position: 'absolute',
         top: '56.53cqi',
         left: 0,
         right: 0,
-        zIndex: 2,
+        zIndex: 1,
         padding: '0 8.53cqi',
-        opacity: phase === 1 ? 1 : 0,
-        transition: 'opacity 0.3s ease',
       }}>
         <AnimatedText
           text="Kort om 2025"
-          isActive={phase === 1}
+          isActive={isActive}
           color="#281402"
           className="animated-text--h1"
-          delay={200}
+          delay={1500}
         />
         <TypewriterText
           text="Här är ett axplock av vad vi åstadkom under året som gått."
-          isActive={phase === 1}
+          isActive={isActive}
           color="#281402"
-          delay={500}
+          delay={1800}
         />
       </div>
+
+      {/* Lottie container — in front */}
+      <div
+        ref={containerRef}
+        style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', zIndex: 2 }}
+      />
     </>
   )
 }
