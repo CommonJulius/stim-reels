@@ -61,6 +61,12 @@
   line-height: 1.125;
 }
 
+/* H3 variant — 24px / 32px at 375px reel width */
+.animated-text--h3 .animated-text__line {
+  font-size: 6.4cqi;
+  line-height: 1.333;
+}
+
 /* Body variant — 20px / 28px at 375px reel width */
 .animated-text--body .animated-text__line {
   font-size: 5.33cqi;

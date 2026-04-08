@@ -18,6 +18,7 @@ export function ImageFlowReel({
   bodyColor,
   heading = '',
   body = '',
+  skipFlowPhase = false,
 }) {
   const [phase, setPhase] = useState('idle')
   const [hasTriggered, setHasTriggered] = useState(false)
@@ -48,22 +49,30 @@ export function ImageFlowReel({
   useEffect(() => {
     if (isActive && !hasTriggered) {
       setHasTriggered(true)
-      setPhase('flow-up')
 
-      // Start the Lottie
-      if (lottieRef.current && lottieLoadedRef.current) {
-        lottieRef.current.play()
+      if (skipFlowPhase) {
+        // Skip straight to text, then carousel shortly after
+        setPhase('text')
+        const t1 = setTimeout(() => setPhase('carousel'), 900)
+        timersRef.current.push(t1)
+      } else {
+        setPhase('flow-up')
+
+        // Start the Lottie
+        if (lottieRef.current && lottieLoadedRef.current) {
+          lottieRef.current.play()
+        }
+
+        // Lottie sped up to ~4.5s — start text near the end, carousel shortly after
+        const textStart = 3800
+        const t1 = setTimeout(() => setPhase('text'), textStart)
+        timersRef.current.push(t1)
+
+        const t2 = setTimeout(() => setPhase('carousel'), textStart + 900)
+        timersRef.current.push(t2)
       }
-
-      // Lottie sped up to ~4.5s — start text near the end, carousel shortly after
-      const textStart = 3800
-      const t1 = setTimeout(() => setPhase('text'), textStart)
-      timersRef.current.push(t1)
-
-      const t2 = setTimeout(() => setPhase('carousel'), textStart + 900)
-      timersRef.current.push(t2)
     }
-  }, [isActive, hasTriggered])
+  }, [isActive, hasTriggered, skipFlowPhase])
 
   const handleLottieEvent = useCallback((event) => {
     if (event === 'load') {

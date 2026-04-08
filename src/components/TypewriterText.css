@@ -42,3 +42,12 @@
   line-height: 1.214;
   margin-top: 0;
 }
+
+/* Medium-large variant — 24px / 32px medium at 375px reel width */
+.typewriter-text--md {
+  font-family: 'GeneralSans-Medium', 'General Sans', sans-serif;
+  font-weight: 500;
+  font-size: 6.4cqi;
+  line-height: 1.333;
+  margin-top: 0;
+}
