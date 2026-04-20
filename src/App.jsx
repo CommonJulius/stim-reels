@@ -47,8 +47,10 @@ function LottieLayer({ src, isActive, loop = false, speed = 1, style, onComplete
   useEffect(() => {
     if (!ref.current || !loadedRef.current) return
     if (isActive) {
-      // Seek to start before playing to handle re-activation
-      ref.current.setSeeker(0, false)
+      // stop() resets to frame 0 and pauses, then play() starts fresh.
+      // More reliable than setSeeker when keepLastFrame has left the player
+      // in an "ended" state after a previous play.
+      ref.current.stop()
       ref.current.play()
     } else {
       ref.current.stop()
@@ -60,7 +62,7 @@ function LottieLayer({ src, isActive, loop = false, speed = 1, style, onComplete
       ref={ref}
       src={src}
       loop={loop}
-      autoplay={false}
+      autoplay={isActive}
       keepLastFrame={!loop}
       speed={speed}
       background="transparent"
@@ -69,7 +71,11 @@ function LottieLayer({ src, isActive, loop = false, speed = 1, style, onComplete
       onEvent={(event) => {
         if (event === 'load') {
           loadedRef.current = true
-          if (isActiveRef.current && ref.current) ref.current.play()
+          if (isActiveRef.current && ref.current) {
+            // stop() hard-resets and clears any "ended" state, then play() starts fresh
+            ref.current.stop()
+            ref.current.play()
+          }
         }
         if (event === 'complete' && onCompleteRef.current) {
           onCompleteRef.current()
@@ -121,6 +127,113 @@ function DotLottieLayer({ src, isActive, loop = false, style }) {
       dotLottieRefCallback={dotLottieRefCallback}
       style={style || { position: 'absolute', inset: 0, width: '100%', height: '100%' }}
     />
+  )
+}
+
+/**
+ * DelayedLottie — shows and plays a full-screen Lottie after a delay, covering content beneath
+ */
+/**
+ * PlainLottie — plays a Lottie JSON via lottie-web directly. Reliable across
+ * mount/unmount cycles (collection switches, etc.) unlike the Player wrapper.
+ */
+function PlainLottie({ src, isActive, loop = false, style }) {
+  const containerRef = useRef(null)
+  const instanceRef = useRef(null)
+  const isActiveRef = useRef(isActive)
+
+  isActiveRef.current = isActive
+
+  useEffect(() => {
+    if (!containerRef.current) return
+    let cancelled = false
+
+    import('lottie-web').then((lottie) => {
+      if (cancelled || !containerRef.current) return
+      const instance = lottie.default.loadAnimation({
+        container: containerRef.current,
+        renderer: 'svg',
+        loop,
+        autoplay: false,
+        path: src,
+      })
+      instanceRef.current = instance
+
+      instance.addEventListener('DOMLoaded', () => {
+        if (isActiveRef.current) {
+          instance.goToAndPlay(0, true)
+        }
+      })
+    })
+
+    return () => {
+      cancelled = true
+      if (instanceRef.current) {
+        instanceRef.current.destroy()
+        instanceRef.current = null
+      }
+    }
+  }, [src, loop])
+
+  useEffect(() => {
+    if (!instanceRef.current) return
+    if (isActive) {
+      instanceRef.current.goToAndPlay(0, true)
+    } else {
+      instanceRef.current.stop()
+    }
+  }, [isActive])
+
+  return (
+    <div
+      ref={containerRef}
+      style={style || { position: 'absolute', inset: 0, width: '100%', height: '100%' }}
+    />
+  )
+}
+
+function DelayedLottie({ src, isActive, delay = 1000, onShow, dotLottie = false }) {
+  const [show, setShow] = useState(false)
+
+  useEffect(() => {
+    if (isActive) {
+      const timer = setTimeout(() => {
+        setShow(true)
+        onShow?.()
+      }, delay)
+      return () => clearTimeout(timer)
+    } else {
+      setShow(false)
+    }
+  }, [isActive, delay])
+
+  return (
+    <div style={{
+      position: 'absolute',
+      inset: 0,
+      width: '100%',
+      height: '100%',
+      zIndex: 2,
+      opacity: show ? 1 : 0,
+      transition: 'opacity 300ms ease',
+      pointerEvents: 'none',
+    }}>
+      {dotLottie ? (
+        show && (
+          <DotLottieLayer
+            src={src}
+            isActive={true}
+            loop={false}
+          />
+        )
+      ) : (
+        <LottieLayer
+          src={src}
+          isActive={show}
+          loop={false}
+        />
+      )}
+    </div>
   )
 }
 
@@ -252,7 +365,7 @@ function StatsReelContent({ isActive }) {
 
 const COLLECTIONS = {
   musikframjande: { label: 'Musikfrämjande', reelCount: 7 },
-  kortom2025: { label: 'Kort om 2025', reelCount: 6 },
+  kortom2025: { label: 'Kort om 2025', reelCount: 9 },
   musikintakter: { label: 'Musikintäkter i Sverige', reelCount: 9 },
 }
 
@@ -548,6 +661,127 @@ function KortOm2025Intro({ isActive }) {
   )
 }
 
+function TitleToLottieReel({ isActive, title, lottieSrc, lottieDelay = 1800, dotLottie = false }) {
+  const [fadeOut, setFadeOut] = useState(false)
+
+  useEffect(() => {
+    if (!isActive) setFadeOut(false)
+  }, [isActive])
+
+  return (
+    <>
+      <ScribbleDoodle
+        isActive={isActive}
+        color="#CCC5F7"
+        duration={2.5}
+        style={{
+          position: 'absolute',
+          top: '-100cqi',
+          left: '-10cqi',
+          width: '160%',
+          pointerEvents: 'none',
+        }}
+      />
+      {/* Left-aligned title — fades out when Lottie appears */}
+      <div style={{
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        display: 'flex',
+        alignItems: 'center',
+        zIndex: 1,
+        padding: '0 8.53cqi',
+        opacity: fadeOut ? 0 : 1,
+        transition: 'opacity 500ms ease',
+      }}>
+        <AnimatedText
+          text={title}
+          isActive={isActive}
+          color="#452531"
+          className="animated-text--h1"
+          delay={300}
+        />
+      </div>
+
+      {/* Lottie — covers screen after delay */}
+      <DelayedLottie
+        src={lottieSrc}
+        isActive={isActive}
+        delay={lottieDelay}
+        onShow={() => setFadeOut(true)}
+        dotLottie={dotLottie}
+      />
+    </>
+  )
+}
+
+function TitleToDoodleReel({ isActive }) {
+  const [doodleActive, setDoodleActive] = useState(false)
+  const [fadeOut, setFadeOut] = useState(false)
+
+  useEffect(() => {
+    if (isActive) {
+      const t1 = setTimeout(() => setDoodleActive(true), 2500)
+      return () => clearTimeout(t1)
+    } else {
+      setDoodleActive(false)
+      setFadeOut(false)
+    }
+  }, [isActive])
+
+  return (
+    <>
+      {/* Scribble doodle — plays after title has finished animating in */}
+      <ScribbleDoodle
+        isActive={doodleActive}
+        color="#CCC5F7"
+        duration={2.5}
+        style={{
+          position: 'absolute',
+          top: '-100cqi',
+          left: '-10cqi',
+          width: '160%',
+          pointerEvents: 'none',
+        }}
+      />
+
+      {/* Left-aligned title — fades out when Lottie appears */}
+      <div style={{
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        display: 'flex',
+        alignItems: 'center',
+        zIndex: 1,
+        padding: '0 8.53cqi',
+        opacity: fadeOut ? 0 : 1,
+        transition: 'opacity 500ms ease',
+      }}>
+        <AnimatedText
+          text="2025 präglades också av utveckling och framsteg"
+          isActive={isActive}
+          color="#452531"
+          className="animated-text--h2"
+          delay={300}
+        />
+      </div>
+
+      {/* Lottie — covers screen after longer delay */}
+      <DelayedLottie
+        src="https://lottie.host/837a8f27-1c52-468c-af0e-b665e78a9195/Cp4pcbIOBm.lottie"
+        isActive={isActive}
+        delay={2500}
+        onShow={() => setFadeOut(true)}
+        dotLottie
+      />
+    </>
+  )
+}
+
 function KortOm2025Reels({ onReelChange }) {
   return (
     <ReelsContainer onReelChange={onReelChange}>
@@ -559,7 +793,7 @@ function KortOm2025Reels({ onReelChange }) {
           <>
             {/* Lottie — behind */}
             <div style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', zIndex: 1 }}>
-              <LottieLayer
+              <PlainLottie
                 src="https://lottie.host/54110a02-1368-4bc6-a2b5-cfea8e9ae8a9/G1xxi1EsPt.json"
                 isActive={isActive}
                 loop={false}
@@ -738,6 +972,21 @@ function KortOm2025Reels({ onReelChange }) {
         <div />
       </ReelItem>
 
+      {/* Reel 4: Title fades out + full-screen Lottie map */}
+      <ReelItem
+        type="custom"
+        backgroundColor="#E8E6FB"
+        overlay={({ isActive }) => (
+          <TitleToLottieReel
+            isActive={isActive}
+            title="Mest pengar kom från dessa länder."
+            lottieSrc="https://lottie.host/79b869fd-8165-4a6b-ac82-5d3bcd826dc9/D7FHvVmsNE.json"
+          />
+        )}
+      >
+        <div />
+      </ReelItem>
+
       {/* Reel 3: Image flow — utbetalningar */}
       <ReelItem
         type="custom"
@@ -764,6 +1013,17 @@ function KortOm2025Reels({ onReelChange }) {
               '/images/_DSC2384.webp',
             ]}
           />
+        )}
+      >
+        <div />
+      </ReelItem>
+
+      {/* Reel 6: Title + delayed lightning doodle */}
+      <ReelItem
+        type="custom"
+        backgroundColor="#E8E6FB"
+        overlay={({ isActive }) => (
+          <TitleToDoodleReel isActive={isActive} />
         )}
       >
         <div />
@@ -819,6 +1079,51 @@ function KortOm2025Reels({ onReelChange }) {
       >
         <div />
       </ReelItem>
+
+      {/* Reel: Outro — Music is Life gif + text */}
+      <ReelItem
+        type="custom"
+        backgroundColor="#DEDBFB"
+        overlay={({ isActive }) => (
+          <>
+            {/* GIF centered in upper half */}
+            <div style={{
+              position: 'absolute',
+              top: '13cqi',
+              left: '50%',
+              transform: 'translateX(-50%)',
+              width: '70cqi',
+              zIndex: 1,
+            }}>
+              <img
+                src="/images/stim_giphy_microfon.gif"
+                alt="Microphone"
+                style={{ width: '100%', height: 'auto' }}
+              />
+            </div>
+
+            {/* Text towards bottom */}
+            <div style={{
+              position: 'absolute',
+              bottom: '32cqi',
+              left: 0,
+              right: 0,
+              zIndex: 2,
+              padding: '0 8.53cqi',
+            }}>
+              <TypewriterText
+                text="Allt för att värdet av musik ska fortsätta nå tillbaka till dem som skapar den."
+                isActive={isActive}
+                color="#050038"
+                className="typewriter-text--md"
+                delay={500}
+              />
+            </div>
+          </>
+        )}
+      >
+        <div />
+      </ReelItem>
     </ReelsContainer>
   )
 }
@@ -826,21 +1131,37 @@ function KortOm2025Reels({ onReelChange }) {
 function MusikintakterReels({ onReelChange }) {
   return (
     <ReelsContainer onReelChange={onReelChange}>
-      {/* Reel 0: Placeholder intro */}
+      {/* Reel 0: Intro — Lottie bg + text */}
       <ReelItem
-        type="custom"
+        type="lottie"
+        src="https://lottie.host/13abf702-0c20-42dc-9ffc-fac67e4ac2c1/d8ba3rYVFZ.json"
         backgroundColor="#EAEFFF"
+        loop={false}
         overlay={({ isActive }) => (
-          <TypewriterText
-            text="Musikintäkter i Sverige — intro placeholder"
-            isActive={isActive}
-            color="#050038"
-            style={{ marginTop: 'auto', marginBottom: 'auto', padding: '0 6.4cqi' }}
-          />
+          <div style={{
+            position: 'absolute',
+            top: '60.8cqi',
+            left: 0,
+            right: 0,
+            zIndex: 2,
+            padding: '0 8.53cqi',
+          }}>
+            <AnimatedText
+              text="Musikintäkter i Sverige"
+              isActive={isActive}
+              color="#050038"
+              className="animated-text--h1"
+              delay={800}
+            />
+            <TypewriterText
+              text="Så gick det för musiken i Sverige 2025."
+              isActive={isActive}
+              color="#050038"
+              delay={1100}
+            />
+          </div>
         )}
-      >
-        <div />
-      </ReelItem>
+      />
 
       {/* Reel 1: Image reveal + paragraph */}
       <ReelItem
@@ -1152,22 +1473,50 @@ function MusikintakterReels({ onReelChange }) {
       >
         <div />
       </ReelItem>
-      {/* Reel 8: Fishbones Lottie bg + text */}
+      {/* Reel 8: Outro — gif + text */}
       <ReelItem
-        type="lottie"
-        src="/fishbones-bg.json"
+        type="custom"
         backgroundColor="#EAEFFF"
-        loop={false}
         overlay={({ isActive }) => (
-          <TypewriterText
-            text="Allt det här betyder mer pengar tillbaka till musikskapare och förlag"
-            isActive={isActive}
-            color="#050038"
-            className="typewriter-text--lg"
-            delay={500}
-          />
+          <>
+            {/* GIF centered in upper half */}
+            <div style={{
+              position: 'absolute',
+              top: '13cqi',
+              left: '50%',
+              transform: 'translateX(-50%)',
+              width: '70cqi',
+              zIndex: 1,
+            }}>
+              <img
+                src="/images/stim_giphy_licensierad_musik.gif"
+                alt="Licensierad musik"
+                style={{ width: '100%', height: 'auto' }}
+              />
+            </div>
+
+            {/* Text towards bottom */}
+            <div style={{
+              position: 'absolute',
+              bottom: '32cqi',
+              left: 0,
+              right: 0,
+              zIndex: 2,
+              padding: '0 8.53cqi',
+            }}>
+              <TypewriterText
+                text="Allt det här betyder mer pengar tillbaka till musikskapare och förlag"
+                isActive={isActive}
+                color="#050038"
+                className="typewriter-text--md"
+                delay={500}
+              />
+            </div>
+          </>
         )}
-      />
+      >
+        <div />
+      </ReelItem>
     </ReelsContainer>
   )
 }

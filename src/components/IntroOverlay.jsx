@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import './IntroOverlay.css'
 
-export function IntroOverlay({ isActive }) {
+export function IntroOverlay({ isActive, delay = 2500 }) {
   const [showOverlay, setShowOverlay] = useState(false)
   const dismissed = useRef(false)
   const hintInterval = useRef(null)
@@ -14,13 +14,13 @@ export function IntroOverlay({ isActive }) {
     if (dismissed.current) return
 
     if (isActive) {
-      const timer = setTimeout(() => setShowOverlay(true), 2500)
+      const timer = setTimeout(() => setShowOverlay(true), delay)
       return () => clearTimeout(timer)
     } else if (showOverlay) {
       dismissed.current = true
       setShowOverlay(false)
     }
-  }, [isActive, showOverlay])
+  }, [isActive, showOverlay, delay])
 
   // Scroll hint bounce animation — custom easing with bounce
   useEffect(() => {
