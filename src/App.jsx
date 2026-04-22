@@ -897,7 +897,7 @@ function KortOm2025Reels({ onReelChange }) {
             />
             <div style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', zIndex: 1 }}>
               <LottieLayer
-                src="https://lottie.host/13439045-95ae-4009-ad94-f73d13a52fa8/dT0S0zN0NC.json"
+                src="https://lottie.host/1b5ce296-8a27-4840-b7dd-9a6a2975535f/Sgfbb3S7UH.json"
                 isActive={isActive}
                 loop={false}
               />
@@ -987,7 +987,7 @@ function KortOm2025Reels({ onReelChange }) {
         <div />
       </ReelItem>
 
-      {/* Reel 3: Image flow — utbetalningar */}
+      {/* Reel 3: Image flow — utbetalningar (skip image rain, use new carousel) */}
       <ReelItem
         type="custom"
         backgroundColor="#E8E6FB"
@@ -999,19 +999,9 @@ function KortOm2025Reels({ onReelChange }) {
             bodyColor="#452531"
             heading=""
             body="Vi betalade ut 2,7 miljarder till låtskrivare, textförfattare, kompositörer och musikförlag. Det är 1,2 miljarder mer än för tio år sedan"
-            images={[
-              '/images/Stipendiater_Stim_Stipendiefesten_2025_PaoDuell_32.webp',
-              '/images/Mingel_Stipendiefesten_2025_PaoDuell_112.webp',
-              '/images/Stim_Music_for_Strings_&_Silk_PaoDuell_2025_46.webp',
-              '/images/Stipendiater_Stim_Stipendiefesten_2025_PaoDuell_103.webp',
-              '/images/POPKOLLO_PRESS_7.webp',
-              '/images/Stim_Samla_Världens_Musik_2025_PaoDuell_38.webp',
-              '/images/Mingel_Stipendiefesten_2025_PaoDuell_101.webp',
-              '/images/8. KUNGÄLV FORTS.webp',
-              '/images/Stim_Music_for_Strings_&_Silk_PaoDuell_2025_50.webp',
-              '/images/Stim_Samla_Världens_Musik_2025_PaoDuell_21 1.webp',
-              '/images/_DSC2384.webp',
-            ]}
+            images={[]}
+            skipFlowPhase
+            carouselLottieSrc="https://lottie.host/b9b2dd2c-592f-46e5-bcc6-7b6f6f06d84f/tgBWnF2iGu.json"
           />
         )}
       >
@@ -1170,10 +1160,10 @@ function MusikintakterReels({ onReelChange }) {
         overlay={({ isActive }) => (
           <>
             <ImageReveal
-              src="/images/POPKOLLO_PRESS_7.webp"
+              src="/images/Instrument-83.webp"
               alt="Musik i Sverige"
               isActive={isActive}
-              credit="Foto: Popkollo"
+              credit="Foto: Melina Hägglund"
             />
             <TypewriterText
               text="Musik är överallt i Sverige. På konserter. I butiker. I mobilen."
@@ -1213,20 +1203,9 @@ function MusikintakterReels({ onReelChange }) {
             bodyColor="#050038"
             heading=""
             body="Där musik används – där samlar vi in pengar genom våra licenser."
-            images={[
-              '/images/Stipendiater_Stim_Stipendiefesten_2025_PaoDuell_32.webp',
-              '/images/Mingel_Stipendiefesten_2025_PaoDuell_112.webp',
-              '/images/Stim_Music_for_Strings_&_Silk_PaoDuell_2025_46.webp',
-              '/images/Stipendiater_Stim_Stipendiefesten_2025_PaoDuell_103.webp',
-              '/images/POPKOLLO_PRESS_7.webp',
-              '/images/Stim_Samla_Världens_Musik_2025_PaoDuell_38.webp',
-              '/images/Mingel_Stipendiefesten_2025_PaoDuell_101.webp',
-              '/images/8. KUNGÄLV FORTS.webp',
-              '/images/Stim_Music_for_Strings_&_Silk_PaoDuell_2025_50.webp',
-              '/images/Stim_Samla_Världens_Musik_2025_PaoDuell_21 1.webp',
-              '/images/_DSC2384.webp',
-            ]}
+            images={[]}
             skipFlowPhase
+            carouselLottieSrc="https://lottie.host/b9a7022f-d44e-49ab-bd2b-e93349566336/bVqCBJDQP1.json"
           />
         )}
       >
@@ -1425,10 +1404,10 @@ function MusikintakterReels({ onReelChange }) {
               style={{ position: 'absolute', bottom: '95.64cqi', left: 0, right: 0, padding: '0 8.53cqi' }}
             />
             <ImageReveal
-              src="/images/POPKOLLO_PRESS_7.webp"
+              src="/images/STIM_latskrivarcamp_2025_085.webp"
               alt="Online musik"
               isActive={isActive}
-              credit="Foto: Popkollo"
+              credit="Foto: Stim"
               variant="bottom"
             />
           </>
@@ -1443,10 +1422,10 @@ function MusikintakterReels({ onReelChange }) {
         overlay={({ isActive }) => (
           <>
             <ImageReveal
-              src="/images/POPKOLLO_PRESS_7.webp"
+              src="/images/STIM_100_PaoDuell_150.webp"
               alt="Livemusik"
               isActive={isActive}
-              credit="Foto: Popkollo"
+              credit="Foto: Pao Duell"
             />
             <TypewriterText
               text="Livemusiken gjorde ett rekordår. Fler konserter. Större konserter +32%"

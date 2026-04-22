@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useMemo, useRef, useCallback } from 'react'
 import { Player } from '@lottiefiles/react-lottie-player'
+import { DotLottieReact } from '@lottiefiles/dotlottie-react'
 import { TypewriterText } from './TypewriterText'
 import { CircleDoodle } from './CircleDoodle'
 import './ImageFlowReel.css'
@@ -19,6 +20,7 @@ export function ImageFlowReel({
   heading = '',
   body = '',
   skipFlowPhase = false,
+  carouselLottieSrc = '/image-carousel-bg.json',
 }) {
   const [phase, setPhase] = useState('idle')
   const [hasTriggered, setHasTriggered] = useState(false)
@@ -151,19 +153,16 @@ export function ImageFlowReel({
         />
       </div>
 
-      {/* Phase 3: Carousel Lottie */}
+      {/* Phase 3: Carousel Lottie (DotLottie / Thor renderer) */}
       <div className={`image-flow-carousel ${phase === 'carousel' ? 'image-flow-carousel--visible' : ''}`}>
-        <Player
-          ref={carouselLottieRef}
-          src="/image-carousel-bg.json"
-          loop={true}
-          autoplay={false}
-          speed={0.2}
-          background="transparent"
-          renderer="svg"
-          style={{ position: 'absolute', inset: 0, width: '100%', height: '100%' }}
-          onEvent={handleCarouselLottieEvent}
-        />
+        {phase === 'carousel' && (
+          <DotLottieReact
+            src={carouselLottieSrc}
+            loop={true}
+            autoplay={true}
+            style={{ width: '100%', height: '100%' }}
+          />
+        )}
       </div>
     </div>
   )
